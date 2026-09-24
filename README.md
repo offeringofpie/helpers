@@ -1,0 +1,30 @@
+# @offeringofpie/helpers
+
+Learning how to create a proper npm package.
+
+> Work in progress. Nothing to see here (yet).
+
+## Install
+
+```bash
+pnpm add @offeringofpie/helpers
+```
+
+## Development
+
+```bash
+pnpm install
+# compile src to dist
+pnpm run build
+```
+
+## Release:
+
+```bash
+npm version patch # or minor / major
+pnpm publish
+```
+
+## Licence
+
+(MIT)[LICENSE]

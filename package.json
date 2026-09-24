@@ -1,0 +1,30 @@
+{
+  "name": "@offeringofpie/helpers",
+  "type": "module",
+  "description": "Framework-agnostic browser tools for preferences, content traversal, and translation.",
+  "version": "0.0.0",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/offeringofpie/helpers.git"
+  },
+  "homepage": "https://github.com/offeringofpie/helpers#readme",
+  "files": [
+    "dist/**/*"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "pnpm run build"
+  },
+  "author": "offeringofpie",
+  "license": "MIT",
+  "devDependencies": {
+    "@total-typescript/tsconfig": "^1.0.4",
+    "typescript": "^7.0.2"
+  },
+  "bugs": {
+    "url": "https://github.com/offeringofpie/helpers/issues"
+  }
+}
