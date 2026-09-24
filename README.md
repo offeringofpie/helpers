@@ -27,4 +27,4 @@ pnpm publish
 
 ## Licence
 
-(MIT)[LICENSE]
+[MIT](LICENSE)
