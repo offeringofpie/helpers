@@ -15,7 +15,8 @@
   ],
   "scripts": {
     "build": "tsc",
-    "prepublishOnly": "pnpm run build"
+    "prepublishOnly": "pnpm run build",
+    "release": "node scripts/release.js"
   },
   "author": "offeringofpie",
   "license": "MIT",

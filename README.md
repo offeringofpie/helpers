@@ -21,8 +21,7 @@ pnpm run build
 ## Release:
 
 ```bash
-npm version patch # or minor / major
-pnpm publish
+pnpm release # --minor / --major for larger versioning
 ```
 
 ## Licence
