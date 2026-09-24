@@ -3,7 +3,6 @@
   "type": "module",
   "description": "Framework-agnostic browser tools for preferences, content traversal, and translation.",
   "version": "0.0.1",
-  "private": true,
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "repository": {
