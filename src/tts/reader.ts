@@ -1,4 +1,4 @@
-import { synth } from './synth.js';
+import { clicksBetweenUtterances, pageSynth, resetSynth, synth } from './synth.js';
 
 type TtsState = 'idle' | 'speaking' | 'paused';
 
@@ -38,12 +38,18 @@ const reducedMotionQuery = '(prefers-reduced-motion: reduce)';
 const cancelErrors: readonly SpeechSynthesisErrorCode[] = ['canceled', 'interrupted'];
 const blockGap = 50;
 const startDelay = 100;
+const sentenceEnd = /[.!?:]\W*$/;
 
 const defaultSettings: TtsSettings = {
   voice: null,
   rate: 1,
   pitch: 1,
   volume: 1,
+};
+
+const toSentence = (el: Element) => {
+  const text = el.textContent?.trim() ?? '';
+  return sentenceEnd.test(text) ? text : `${text}.`;
 };
 
 const scrollIntoViewIfNeeded = (el: Element) => {
@@ -65,7 +71,7 @@ const createTts = (options: TtsOptions = {}): Tts => {
   let block: Element | null = null;
   let index = 0;
   let session = 0;
-  let restarting = false;
+  let restartOnResume = false;
 
   const getBlocks = () => {
     const root = document.querySelector(rootSelector) ?? document.body;
@@ -88,10 +94,14 @@ const createTts = (options: TtsOptions = {}): Tts => {
     subscribers.forEach((callback) => callback({ state, block }));
   };
 
-  const applySettings = (utterance: SpeechSynthesisUtterance) => {
-    const voice = synth()
+  const findVoice = () => {
+    return pageSynth()
       ?.getVoices()
       .find((option) => option.name === settings.voice);
+  };
+
+  const applySettings = (utterance: SpeechSynthesisUtterance) => {
+    const voice = findVoice();
     if (voice) {
       utterance.voice = voice;
     }
@@ -106,29 +116,48 @@ const createTts = (options: TtsOptions = {}): Tts => {
       return;
     }
 
-    const next = getBlocks()[index];
-    if (!next) {
+    const blocks = getBlocks();
+    const run = clicksBetweenUtterances() ? blocks.slice(index) : blocks.slice(index, index + 1);
+    const first = run[0];
+    if (!first) {
       update('idle', null);
       return;
     }
 
-    const utterance = new SpeechSynthesisUtterance(next.textContent ?? '');
-    applySettings(utterance);
-    update(state, next);
-    scrollIntoViewIfNeeded(next);
+    const texts = run.map(toSentence);
+    const ends: number[] = [];
+    let length = 0;
+    for (const text of texts) {
+      length += text.length + 1;
+      ends.push(length);
+    }
 
-    const advance = () => {
-      if (!restarting) {
-        index++;
+    const runStart = index;
+    const utterance = new SpeechSynthesisUtterance(texts.join(' '));
+    applySettings(utterance);
+    update(state, first);
+    scrollIntoViewIfNeeded(first);
+
+    const advance = (nextIndex: number) => {
+      index = nextIndex;
+      setTimeout(() => speakNext(id), blockGap);
+    };
+
+    utterance.onboundary = (event) => {
+      const reached = ends.findIndex((end) => event.charIndex < end);
+      const current = run[reached];
+      if (id !== session || !current || current === block) {
+        return;
       }
 
-      restarting = false;
-      setTimeout(() => speakNext(id), blockGap);
+      index = runStart + reached;
+      update(state, current);
+      scrollIntoViewIfNeeded(current);
     };
 
     utterance.onend = () => {
       if (id === session) {
-        advance();
+        advance(runStart + run.length);
       }
     };
 
@@ -137,12 +166,12 @@ const createTts = (options: TtsOptions = {}): Tts => {
         return;
       }
 
-      if (cancelErrors.includes(event.error) && !restarting) {
+      if (cancelErrors.includes(event.error)) {
         stop();
         return;
       }
 
-      advance();
+      advance(index + 1);
     };
 
     synth()?.speak(utterance);
@@ -150,13 +179,13 @@ const createTts = (options: TtsOptions = {}): Tts => {
 
   const start = (fromIndex = 0) => {
     const blocks = getBlocks();
-    if (!synth() || blocks.length === 0) {
+    if (!pageSynth() || blocks.length === 0) {
       return;
     }
 
     session++;
-    restarting = false;
-    synth()?.cancel();
+    restartOnResume = false;
+    resetSynth();
     index = Math.min(Math.max(fromIndex, 0), blocks.length - 1);
     update('speaking', block);
 
@@ -169,12 +198,24 @@ const createTts = (options: TtsOptions = {}): Tts => {
       return;
     }
 
-    synth()?.pause();
+    if (findVoice()?.localService === false) {
+      session++;
+      resetSynth();
+      restartOnResume = true;
+    } else {
+      synth()?.pause();
+    }
+
     update('paused', block);
   };
 
   const resume = () => {
     if (state !== 'paused') {
+      return;
+    }
+
+    if (restartOnResume) {
+      start(index);
       return;
     }
 
@@ -184,8 +225,8 @@ const createTts = (options: TtsOptions = {}): Tts => {
 
   const stop = () => {
     session++;
-    restarting = false;
-    synth()?.cancel();
+    restartOnResume = false;
+    resetSynth();
     update('idle', null);
   };
 
@@ -199,12 +240,15 @@ const createTts = (options: TtsOptions = {}): Tts => {
 
   const setSettings = (next: Partial<TtsSettings>) => {
     settings = { ...settings, ...next };
-    if (state !== 'speaking' || !synth()?.speaking) {
+
+    if (state === 'speaking') {
+      start(index);
       return;
     }
 
-    restarting = true;
-    synth()?.cancel();
+    if (state === 'paused') {
+      restartOnResume = true;
+    }
   };
 
   const subscribe = (callback: (snapshot: TtsSnapshot) => void) => {

@@ -1,6 +1,8 @@
-import { synth } from './synth.js';
+import { pageSynth } from './synth.js';
 
 type VoiceQuality = 'premium' | 'enhanced' | 'standard';
+
+const voicesSettleTime = 500;
 
 const qualityOrder: Record<VoiceQuality, number> = {
   premium: 0,
@@ -70,7 +72,7 @@ const pickVoice = (
 };
 
 const loadVoices = async (): Promise<SpeechSynthesisVoice[]> => {
-  const speech = synth();
+  const speech = pageSynth();
   if (!speech) {
     return [];
   }
@@ -81,8 +83,20 @@ const loadVoices = async (): Promise<SpeechSynthesisVoice[]> => {
   }
 
   return new Promise((resolve) => {
-    const onChange = () => resolve(speech.getVoices());
-    speech.addEventListener('voiceschanged', onChange, { once: true });
+    let timer: ReturnType<typeof setTimeout>;
+
+    const settle = () => {
+      speech.removeEventListener('voiceschanged', wait);
+      resolve(speech.getVoices());
+    };
+
+    const wait = () => {
+      clearTimeout(timer);
+      timer = setTimeout(settle, voicesSettleTime);
+    };
+
+    speech.addEventListener('voiceschanged', wait);
+    wait();
   });
 };
 
