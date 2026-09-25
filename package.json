@@ -5,6 +5,16 @@
   "version": "0.0.1",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./tts": {
+      "types": "./dist/tts/index.d.ts",
+      "default": "./dist/tts/index.js"
+    }
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/offeringofpie/helpers.git"
