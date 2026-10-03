@@ -13,6 +13,14 @@
     "./tts": {
       "types": "./dist/tts/index.d.ts",
       "default": "./dist/tts/index.js"
+    },
+    "./socket": {
+      "types": "./dist/socket/index.d.ts",
+      "default": "./dist/socket/index.js"
+    },
+    "./cloudflare": {
+      "types": "./dist/cloudflare/index.d.ts",
+      "default": "./dist/cloudflare/index.js"
     }
   },
   "repository": {
@@ -24,13 +32,14 @@
     "dist/**/*"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && tsc -p tsconfig.cloudflare.json",
     "prepublishOnly": "pnpm run build",
     "release": "node scripts/release.js"
   },
   "author": "offeringofpie",
   "license": "MIT",
   "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261002.1",
     "@total-typescript/tsconfig": "^1.0.4",
     "typescript": "^7.0.2"
   },

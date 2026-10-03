@@ -28,7 +28,7 @@ const byQuality = (a: SpeechSynthesisVoice, b: SpeechSynthesisVoice) => {
 };
 
 const groupVoices = (
-  voices: readonly SpeechSynthesisVoice[],
+  voices: SpeechSynthesisVoice[],
   preferredLang?: string,
 ): Map<string, SpeechSynthesisVoice[]> => {
   const isPreferred = (lang: string) => {
@@ -50,7 +50,7 @@ const groupVoices = (
 };
 
 const pickVoice = (
-  voices: readonly SpeechSynthesisVoice[],
+  voices: SpeechSynthesisVoice[],
   savedName?: string | null,
 ): SpeechSynthesisVoice | null => {
   const saved = voices.find((voice) => voice.name === savedName);

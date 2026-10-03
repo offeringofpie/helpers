@@ -3,22 +3,22 @@ import { clicksBetweenUtterances, pageSynth, resetSynth, synth } from './synth.j
 type TtsState = 'idle' | 'speaking' | 'paused';
 
 type TtsSettings = {
-  readonly voice: string | null;
-  readonly rate: number;
-  readonly pitch: number;
-  readonly volume: number;
+  voice: string | null;
+  rate: number;
+  pitch: number;
+  volume: number;
 };
 
 type TtsSnapshot = {
-  readonly state: TtsState;
-  readonly block: Element | null;
+  state: TtsState;
+  block: Element | null;
 };
 
 type TtsOptions = {
-  readonly rootSelector?: string;
-  readonly blockSelector?: string;
-  readonly activeClass?: string;
-  readonly settings?: Partial<TtsSettings>;
+  rootSelector?: string;
+  blockSelector?: string;
+  activeClass?: string;
+  settings?: Partial<TtsSettings>;
 };
 
 type Tts = {
@@ -35,7 +35,7 @@ type Tts = {
 const defaultRootSelector = 'article';
 const defaultBlockSelector = 'h1, h2, h3, h4, h5, h6, p, li, blockquote';
 const reducedMotionQuery = '(prefers-reduced-motion: reduce)';
-const cancelErrors: readonly SpeechSynthesisErrorCode[] = ['canceled', 'interrupted'];
+const cancelErrors: SpeechSynthesisErrorCode[] = ['canceled', 'interrupted'];
 const blockGap = 50;
 const startDelay = 100;
 const sentenceEnd = /[.!?:]\W*$/;

@@ -8,6 +8,9 @@ importers:
 
   .:
     devDependencies:
+      '@cloudflare/workers-types':
+        specifier: ^5.20261002.1
+        version: 5.20261002.1
       '@total-typescript/tsconfig':
         specifier: ^1.0.4
         version: 1.0.4
@@ -16,6 +19,9 @@ importers:
         version: 7.0.2
 
 packages:
+
+  '@cloudflare/workers-types@5.20261002.1':
+    resolution: {integrity: sha512-4DJVJoQrKkB/Q1IJJE5hd793Nupqmn2J+zuikAh2isHq/1s44G5drucgL/RtCa7/7UeJ3y6J7cmhrCZcIVfNVg==}
 
   '@total-typescript/tsconfig@1.0.4':
     resolution: {integrity: sha512-fO4ctMPGz1kOFOQ4RCPBRBfMy3gDn+pegUfrGyUFRMv/Rd0ZM3/SHH3hFCYG4u6bPLG8OlmOGcBLDexvyr3A5w==}
@@ -146,6 +152,8 @@ packages:
     hasBin: true
 
 snapshots:
+
+  '@cloudflare/workers-types@5.20261002.1': {}
 
   '@total-typescript/tsconfig@1.0.4': {}
 
